@@ -1,0 +1,14 @@
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <rect width="128" height="128" rx="28" fill="#FFFFFF"/>
+
+  <!-- Center -->
+  <circle cx="64" cy="64" r="10" fill="#222"/>
+
+  <!-- Left (Synonyms) -->
+  <circle cx="32" cy="64" r="6" fill="#2E7D32"/>
+  <line x1="42" y1="64" x2="54" y2="64" stroke="#81C784" stroke-width="3"/>
+
+  <!-- Right (Antonyms) -->
+  <circle cx="96" cy="64" r="6" fill="#C62828"/>
+  <line x1="74" y1="64" x2="86" y2="64" stroke="#E57373" stroke-width="3"/>
+</svg>

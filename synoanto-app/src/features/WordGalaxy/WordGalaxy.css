@@ -1,0 +1,382 @@
+.word-galaxy-container {
+    width: 100%;
+    height: 100%;
+    /* Fill the container */
+    min-height: 100vh;
+    /* Ensure full viewport height */
+    background: #F7F6F5;
+    /* Background set to Rice White/Light Grey from palette */
+    overflow: hidden;
+    position: relative;
+    touch-action: none;
+    container-type: size;
+    /* Enable container queries */
+}
+
+.galaxy-controls {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    z-index: 20;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(10px);
+}
+
+.galaxy-control-btn {
+    padding: 0.25rem 0.75rem;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: var(--transition);
+    font-size: 1rem;
+    min-width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.galaxy-control-btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+}
+
+.galaxy-control-btn:active {
+    transform: translateY(0);
+}
+
+.zoom-display {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    min-width: 80px;
+}
+
+.galaxy-canvas {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    user-select: none;
+}
+
+.galaxy-content {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    transform-origin: center;
+    will-change: transform;
+}
+
+.connection-lines {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.connection-line {
+    stroke-width: 2;
+    stroke-opacity: 0.4;
+    transition: stroke-opacity 0.2s ease;
+}
+
+.line-synonym {
+    stroke: #EABCDD;
+    /* Swapped from blue-grey to pinkish */
+    stroke-dasharray: 5, 5;
+}
+
+.line-antonym {
+    stroke: #A4B5D5;
+    /* Swapped from pinkish to blue-grey */
+    stroke-dasharray: 3, 3;
+}
+
+.galaxy-word {
+    position: absolute;
+    padding: 1cqmin 1.8cqmin;
+    /* Reduced from 1.5/2.5 */
+    border-radius: 50px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 2;
+    /* Adaptive width: min-content allows it to shrink to text, max-content allows growth */
+    width: max-content;
+    min-width: auto;
+    /* Remove hard pixel min-width */
+    max-width: 40cqmin;
+    /* Cap max width relative to container */
+    text-align: center;
+    box-shadow: var(--shadow-md);
+    border: none;
+    font-family: inherit;
+    outline: none;
+    transform-origin: center;
+    /* Ensure text doesn't overflow */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* Use margin-top animation to avoid conflicting with inline transform (scale/translate) */
+    animation: float-margin 6s infinite ease-in-out;
+    font-size: 2.5cqmin;
+    /* Reduced from 3.5 */
+}
+
+/* Add random delays for children using nth-child to create non-uniform floating */
+.galaxy-word:nth-child(2n) {
+    animation-delay: -2s;
+    animation-duration: 7s;
+}
+
+.galaxy-word:nth-child(3n) {
+    animation-delay: -4s;
+    animation-duration: 5s;
+}
+
+.galaxy-word:nth-child(5n) {
+    animation-delay: -1s;
+    animation-duration: 8s;
+}
+
+.galaxy-word:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+.galaxy-word:hover {
+    /* Pause animation on hover so it's easier to click */
+    animation-play-state: paused;
+    /* Use margin-top to keep it "frozen" or slightly lift, without overriding transform */
+    margin-top: -5px;
+    /* Force scale on hover using !important since inline styles are present */
+    transform: translate(-50%, -50%) scale(1.15) !important;
+    z-index: 15;
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.3), 0 0 20px 5px rgba(255, 255, 255, 0.6);
+    /* Light ring effect */
+}
+
+@keyframes float-margin {
+
+    0%,
+    100% {
+        margin-top: 0;
+    }
+
+    50% {
+        margin-top: -1.5cqmin;
+    }
+}
+
+/* Palette Mapping:
+    Center (Main Word): #EABCDD (Pinkish)
+    Synonym: #A4B5D5 (Blue/Grey)
+    Antonym: #F0DFEA (Light Pink)
+    Related/Neutral: #DDD1E9 (Lavender)
+    Background: #F7F6F5 (Already applied to container)
+ */
+
+.galaxy-word-center {
+    background: #EABCDD;
+    color: #2d3748;
+    /* Dark text for contrast */
+    font-size: 4cqmin;
+    /* Reduced from 5cqmin */
+    padding: 1.5cqmin 2.5cqmin;
+    /* Reduced from 2.5/3.5 */
+    min-width: auto;
+    border: none;
+    font-weight: 800;
+}
+
+.galaxy-word-synonym {
+    background: #F0DFEA;
+    color: #2d3748;
+    font-size: 2.5cqmin;
+    /* Reduced from 3.5 */
+}
+
+.galaxy-word-antonym {
+    background: #A4B5D5;
+    color: white;
+    font-size: 2.5cqmin;
+    /* Reduced from 3.5 */
+}
+
+.galaxy-word-neutral {
+    background: #DDD1E9;
+    color: #2d3748;
+    font-size: 2.5cqmin;
+    /* Reduced from 3.5 */
+}
+
+.word-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.1rem;
+    pointer-events: none;
+}
+
+.word-text {
+    font-size: 1.2em;
+    /* Relative to container font-size */
+    font-weight: 700;
+    transition: transform 0.2s ease;
+}
+
+.word-type {
+    font-size: 0.6em;
+    /* Smaller ratio relative to word */
+    opacity: 0.8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+}
+
+.word-strength {
+    font-size: 0.7em;
+    opacity: 0.8;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.125em 0.375em;
+    border-radius: 10px;
+    margin-top: 0.125em;
+}
+
+.word-detail-modal {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    animation: fadeIn 0.2s ease;
+    backdrop-filter: blur(2px);
+}
+
+.word-detail-content {
+    background: white;
+    border-radius: var(--border-radius-lg);
+    padding: 1.5rem;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: var(--shadow-lg);
+    animation: slideUp 0.3s ease;
+}
+
+.word-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.word-detail-header h3 {
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    margin: 0;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: var(--transition);
+    line-height: 1;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.close-btn:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+.word-detail-body {
+    color: var(--text-secondary);
+}
+
+.word-detail-body p {
+    margin: 0.5rem 0;
+    line-height: 1.6;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .word-galaxy-container {
+        /* height: 500px; Remove fixed height override for mobile if it breaks container query */
+        height: 100%;
+    }
+
+    .galaxy-controls {
+        top: 0.5rem;
+        right: 0.5rem;
+        padding: 0.25rem 0.5rem;
+    }
+
+    .galaxy-control-btn {
+        min-width: 32px;
+        height: 32px;
+        padding: 0.25rem 0.5rem;
+    }
+
+    /* Mobile overrides using cqmin usually work fine, no specific manual overrides needed if using CQ */
+    /*
+     .galaxy-word {
+         min-width: 80px; 
+         padding: 0.5rem 1rem;
+         font-size: 0.875rem;
+     }
+     */
+
+    .word-detail-content {
+        width: 95%;
+        padding: 1rem;
+    }
+}
