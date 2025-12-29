@@ -7,32 +7,23 @@
 
 .app {
   width: 100%;
-  max-width: 480px;
-  /* Standard mobile width for the "app" feel */
   height: 100vh;
-  margin: 0 auto;
+  margin: 0;
   background-color: var(--bg-primary);
   display: flex;
   flex-direction: column;
   position: relative;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
-  /* Subtle shadow to detach from background */
   overflow: hidden;
-  /* Ensure content stays within rounded corners if added */
 }
 
-/* For larger screens (Web/Tablet), we can relax the width or keep it strict if simulating mobile */
+/* For larger screens (Web/Tablet), ensure full screen usage */
 @media (min-width: 768px) {
   .app {
-    max-width: 480px;
-    /* Keep it mobile-width to strictly simulate app */
-    /* Or use 100% max-width and internal container for content if they wanted full web support. 
-       Given "Visual Connection" and "Flashcards", a narrower column usually works better regardless. */
-    margin-top: 2rem;
-    margin-bottom: 2rem;
-    border-radius: var(--border-radius-lg);
-    height: calc(100vh - 4rem);
-    /* Fixed height */
+    width: 100%;
+    height: 100vh;
+    border-radius: 0;
+    margin: 0;
+    max-width: none;
   }
 }
 
@@ -139,6 +130,32 @@
   padding-bottom: 2rem;
 }
 
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: white;
+  /* Visible on starry background */
+  gap: 1rem;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: var(--primary-light, #EABCDD);
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* =========================================
    Welcome Page
    ========================================= */
@@ -221,7 +238,6 @@
   padding: var(--spacing-lg);
   background-color: var(--bg-primary);
   min-height: 100vh;
-  animation: slideInRight 0.3s ease-out;
 }
 
 .comparison-header {
@@ -230,6 +246,10 @@
   margin-bottom: 0.5rem;
   /* Reduced from var(--spacing-lg) */
   gap: 0.5rem;
+  width: 100%;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .back-btn {
@@ -260,6 +280,9 @@
   flex-direction: column;
   gap: 0.75rem;
   /* Reduced gap since VS is gone */
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .word-card {
@@ -439,6 +462,10 @@
   box-shadow: var(--shadow);
   margin-top: 0.75rem;
   /* Reduced margin */
+  width: 100%;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .usage-analysis-section h3 {
@@ -485,16 +512,4 @@
   color: #2d3748;
   /* Fluid typography for usage text to ensure readability on small screens */
   font-size: clamp(0.9rem, 2.5cqw, 1rem);
-}
-
-@keyframes slideInRight {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
 }

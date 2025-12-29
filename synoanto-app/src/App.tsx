@@ -1,6 +1,6 @@
 // Import service
 import { fetchWordData, fetchWordDefinition } from '@/services/wordService';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import WordGalaxy from './features/WordGalaxy/WordGalaxy';
 import type { GalaxyWord, WordData } from './types';
 import './styles/global.css';
@@ -10,8 +10,16 @@ import './App.css';
 type AppView = 'welcome' | 'galaxy' | 'detail';
 
 function App() {
-  const [view, setView] = useState<AppView>('welcome');
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  // Initialize state based on URL to prevent "flash" of welcome screen
+  const [view, setView] = useState<AppView>(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('q') ? 'galaxy' : 'welcome';
+  });
+
+  const [searchQuery, setSearchQuery] = useState<string>(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('q') || '';
+  });
 
   // Dynamic Data State
   const [currentGalaxyWords, setCurrentGalaxyWords] = useState<GalaxyWord[]>([]);
@@ -19,22 +27,34 @@ function App() {
   const [selectedNode, setSelectedNode] = useState<GalaxyWord | null>(null);
   const [selectedWordDetail, setSelectedWordDetail] = useState<WordData | null>(null);
 
-  // UI State
-  const [isLoading, setIsLoading] = useState(false);
+  // UI State - start loading if we have a query
+  const [isLoading, setIsLoading] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return !!params.get('q');
+  });
   const [error, setError] = useState<string | null>(null);
 
-  const handleSearch = async (e?: React.FormEvent) => {
-    e?.preventDefault();
-    if (!searchQuery.trim()) return;
+  // --- Navigation & State Management ---
+
+  // Refactored search logic to be reusable
+  const performSearch = async (term: string) => {
+    if (!term.trim()) return;
 
     setIsLoading(true);
     setError(null);
+    setSearchQuery(term);
 
     try {
-      const { wordData, galaxyWords } = await fetchWordData(searchQuery.trim());
+      const { wordData, galaxyWords } = await fetchWordData(term.trim());
       setCurrentWordData(wordData);
       setCurrentGalaxyWords(galaxyWords);
       setView('galaxy');
+
+      // Update URL without reloading
+      const url = new URL(window.location.href);
+      url.searchParams.set('q', term.trim());
+      window.history.pushState({}, '', url);
+
     } catch (err) {
       console.error(err);
       setError('Could not find word. Please try another.');
@@ -42,6 +62,22 @@ function App() {
       setIsLoading(false);
     }
   };
+
+  // 1. Handle URL Query Params on Mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const queryWord = params.get('q');
+    if (queryWord) {
+      performSearch(queryWord);
+    }
+  }, []);
+
+  const handleSearch = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    performSearch(searchQuery);
+  };
+
+  // ... (handleWordClick logic remains similar, maybe update view state if we wanted deep linking for details later)
 
   const handleWordClick = async (word: GalaxyWord) => {
     setSelectedNode(word);
@@ -82,6 +118,11 @@ function App() {
     setCurrentWordData(null);
     setSelectedWordDetail(null);
     setView('welcome');
+
+    // Clear URL
+    const url = new URL(window.location.href);
+    url.searchParams.delete('q');
+    window.history.pushState({}, '', url);
   };
 
   // --- Render Helpers ---
@@ -119,8 +160,9 @@ function App() {
       <main className="app-main" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
         <div style={{ flex: 1, position: 'relative', height: '100%', width: '100%' }}>
           {isLoading ? (
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-              <p>Loading Galaxy...</p>
+            <div className="loading-container">
+              <div className="spinner"></div>
+              <p>Exploring Galaxy...</p>
             </div>
           ) : (
             <WordGalaxy

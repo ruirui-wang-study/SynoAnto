@@ -162,7 +162,7 @@
     margin-top: -5px;
     /* Force scale on hover using !important since inline styles are present */
     transform: translate(-50%, -50%) scale(1.15) !important;
-    z-index: 15;
+    z-index: 100 !important;
     box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.3), 0 0 20px 5px rgba(255, 255, 255, 0.6);
     /* Light ring effect */
 }
@@ -201,24 +201,30 @@
 }
 
 .galaxy-word-synonym {
-    background: #F0DFEA;
+    background: rgba(240, 223, 234, 0.85);
+    /* Light Pinkish with transparency */
     color: #2d3748;
     font-size: 2.5cqmin;
     /* Reduced from 3.5 */
+    backdrop-filter: blur(4px);
 }
 
 .galaxy-word-antonym {
-    background: #A4B5D5;
+    background: rgba(164, 181, 213, 0.85);
+    /* Blue-Grey with transparency */
     color: white;
     font-size: 2.5cqmin;
     /* Reduced from 3.5 */
+    backdrop-filter: blur(4px);
 }
 
 .galaxy-word-neutral {
-    background: #DDD1E9;
+    background: rgba(221, 209, 233, 0.85);
+    /* Lavender with transparency */
     color: #2d3748;
     font-size: 2.5cqmin;
     /* Reduced from 3.5 */
+    backdrop-filter: blur(4px);
 }
 
 .word-content {

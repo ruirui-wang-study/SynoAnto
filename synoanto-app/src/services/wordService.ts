@@ -97,7 +97,24 @@ export const fetchWordDefinition = async (term: string): Promise<WordData | null
     }
 };
 
-export const fetchWordData = async (term: string): Promise<{ wordData: WordData; galaxyWords: GalaxyWord[] }> => {
+import { APP_CONFIG } from '@/config';
+
+// Configuration interface for word limits
+interface GalaxyConfig {
+    maxSynonyms?: number;
+    maxAntonyms?: number;
+}
+
+export const fetchWordData = async (
+    term: string,
+    config: GalaxyConfig = {} // Default empty object
+): Promise<{ wordData: WordData; galaxyWords: GalaxyWord[] }> => {
+    // Default values if not provided
+    const {
+        maxSynonyms = APP_CONFIG.galaxy.maxSynonyms,
+        maxAntonyms = APP_CONFIG.galaxy.maxAntonyms
+    } = config;
+
     try {
         // 1. Parallel Fetch: Collegiate (Def, Pronunciation) & Thesaurus (Syn, Ant)
         const [collegiateRes, thesaurusRes] = await Promise.all([
@@ -151,13 +168,13 @@ export const fetchWordData = async (term: string): Promise<{ wordData: WordData;
             const rawSyns = thesaurusEntry.meta?.syns?.flat() || [];
             const rawAnts = thesaurusEntry.meta?.ants?.flat() || [];
 
-            synonyms = rawSyns.slice(0, 8).map((word: string, index: number) => ({
+            synonyms = rawSyns.slice(0, maxSynonyms).map((word: string, index: number) => ({
                 word,
                 strength: Math.max(0.3, 1 - (index * 0.1)), // Mock strength based on order
                 example: `Similar to ${term}`
             }));
 
-            antonyms = rawAnts.slice(0, 5).map((word: string, index: number) => ({
+            antonyms = rawAnts.slice(0, maxAntonyms).map((word: string, index: number) => ({
                 word,
                 strength: Math.max(0.3, 1 - (index * 0.1)),
                 example: `Opposite of ${term}`
@@ -198,8 +215,19 @@ export const fetchWordData = async (term: string): Promise<{ wordData: WordData;
         // 4. Construct Galaxy Words
         const galaxyWords: GalaxyWord[] = [];
 
+        // Helper to track occupied space for collision detection
+        // x, y in percentages (0-100)
+        // radius in "distance units" (approximate percentage distance)
+        const occupied: { x: number; y: number; r: number }[] = [];
+
+        const addWord = (word: GalaxyWord, safetyRadius: number) => {
+            galaxyWords.push(word);
+            occupied.push({ x: word.x, y: word.y, r: safetyRadius });
+        };
+
         // Center Node
-        galaxyWords.push({
+        // Center is larger, so give it a bigger safety radius (e.g. 12)
+        addWord({
             id: 0,
             word: term,
             x: 50,
@@ -207,7 +235,7 @@ export const fetchWordData = async (term: string): Promise<{ wordData: WordData;
             type: 'center',
             size: 1.5,
             strength: 1
-        });
+        }, 14);
 
         // Add Synonyms and Antonyms to Galaxy
         const allRelated = [
@@ -215,33 +243,66 @@ export const fetchWordData = async (term: string): Promise<{ wordData: WordData;
             ...antonyms.map(a => ({ ...a, type: 'antonym' as const }))
         ];
 
-        // Improved Layout: Zig-zag radius to prevent overlapping
-        const total = allRelated.length;
-        const angleStep = (2 * Math.PI) / total;
-
+        // Random distribution with collision detection
         allRelated.forEach((item, index) => {
-            // Distribute evenly
-            let angle = index * angleStep;
+            let placed = false;
+            let attempts = 0;
+            const maxAttempts = 100;
+            const nodeRadius = 7; // Safety radius for standard nodes (radius ~ button size/2 + margin)
 
-            // Alternate radius: Inner orbit (22%) and Outer orbit (38%)
-            // This creates a zig-zag pattern, giving neighbors vertically more space
-            const isOuter = index % 2 === 1;
-            const radius = isOuter ? 32 : 18;
+            while (!placed && attempts < maxAttempts) {
+                // Generate random position between 10% and 90% to keep away from edges
+                const x = 10 + Math.random() * 80;
+                const y = 10 + Math.random() * 80;
 
-            // Add slight randomness for "organic" feel, but keep it small
-            angle += (Math.random() * 0.1 - 0.05); // +/- 0.05 radian (~3 degrees)
-            const r = radius + (Math.random() * 2 - 1); // Small radius jitter
+                // Check collision with all existing
+                let overlap = false;
+                for (const spot of occupied) {
+                    const dx = x - spot.x;
+                    const dy = y - spot.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    const minDist = spot.r + nodeRadius;
 
-            galaxyWords.push({
-                id: index + 1,
-                word: item.word,
-                x: 50 + r * Math.cos(angle),
-                y: 50 + r * Math.sin(angle),
-                type: item.type,
-                size: 1,
-                strength: item.strength,
-                example: item.example
-            });
+                    if (dist < minDist) {
+                        overlap = true;
+                        break;
+                    }
+                }
+
+                if (!overlap) {
+                    addWord({
+                        id: index + 1,
+                        word: item.word,
+                        x,
+                        y,
+                        type: item.type,
+                        size: 1,
+                        strength: item.strength,
+                        example: item.example
+                    }, nodeRadius);
+                    placed = true;
+                }
+                attempts++;
+            }
+
+            // Fallback: If can't find a spot, place in a random outer ring (ignoring partial collisions if must)
+            if (!placed) {
+                const angle = Math.random() * 2 * Math.PI;
+                const r = 35 + Math.random() * 10; // 35-45% radius from center
+                const safeX = Math.max(5, Math.min(95, 50 + r * Math.cos(angle)));
+                const safeY = Math.max(5, Math.min(95, 50 + r * Math.sin(angle)));
+
+                addWord({
+                    id: index + 1,
+                    word: item.word,
+                    x: safeX,
+                    y: safeY,
+                    type: item.type,
+                    size: 1,
+                    strength: item.strength,
+                    example: item.example
+                }, nodeRadius);
+            }
         });
 
         return { wordData, galaxyWords };
