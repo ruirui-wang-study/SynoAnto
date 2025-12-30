@@ -3,9 +3,9 @@
 
 产品亮点：目前大模型软件已经可以支持很多英语学习的功能，但是它接受的信息很杂，没有针对性的学习记忆功能，所以可以借助大模型能力，打造一款专注于近义词/反义词的英语学习app，列出近义词/反义词的词义，词源，词用，词例，词义对比，词源脉络等信息，帮助用户更好地学习英语。另外，根据用户的学习习惯，总结使用场景，推荐可能用到的其他单词。
 
-![功能架构图](<synoanto-app/src/assets/function diagram.svg>)
+![alt text](<synoanto-app/dist/function diagram.svg>)
 
-![时序图](synoanto-app/src/assets/sequence.svg)
+![alt text](synoanto-app/dist/sequence.svg)
 
 支持功能：
 - 单词释义查询（中/英文）
