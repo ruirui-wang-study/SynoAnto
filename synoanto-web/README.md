@@ -1,73 +1,102 @@
-# React + TypeScript + Vite
+# SynoAnto - Design and Usage Document
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 1. Project Overview
+**SynoAnto** is an interactive English learning application focuses on visualizing relationships between words (synonyms and antonyms) and analyzing their nuances. The application helps users understand the subtle differences between similar words through a visual "Word Galaxy" and detailed comparison views.
 
-Currently, two official plugins are available:
+## 2. Technology Stack
+- **Core Framework**: React 19
+- **Language**: TypeScript
+- **Build Tool**: Vite
+- **Styling**: Vanilla CSS with CSS Variables for theming
+- **Linting**: ESLint
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 3. Directory Structure
+The project follows a feature-based architecture:
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+src/
+├── assets/          # Static assets
+├── components/      # Shared reusable components
+├── data/            # Static data files (if any)
+├── features/        # Main feature modules
+│   ├── NuanceAnalysis/ # Logic for word comparison & nuances
+│   └── WordGalaxy/     # Logic for the interactive graph visualization
+├── hooks/           # Custom React hooks
+├── services/        # API services (e.g., wordService.ts)
+├── styles/          # Global styles and variables
+├── types/           # TypeScript type definitions
+├── App.tsx          # Main application component & routing logic
+└── main.tsx         # Application entry point
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 4. Key Features & Design
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### 4.1. Welcome Screen
+- **Design**: Minimalist, clean interface focusing on the search bar.
+- **Functionality**: Users enter a target word to begin their exploration.
+- **State**: Manages loading states and handles errors if a word is not found.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### 4.2. Word Galaxy (Visualizer)
+- **Concept**: A node-link diagram where the searched word is the "Center" (Sun) and related words (synonyms/antonyms) orbit around it.
+- **Interactions**:
+    - **Pan & Zoom**: Users can drag the canvas and zoom in/out with the mouse wheel.
+    - **Selection**: Clicking a satellite node triggers the detail comparison view.
+- **Visuals**:
+    - **Center Node**: Larger, distinct color.
+    - **Synonyms**: Connected with specific styled lines, distinct colors.
+    - **Antonyms**: Connected with contrasting lines/colors.
+
+### 4.3. Nuance Analysis (Deep Dive)
+- **Purpose**: To explain *why* two synonyms are different.
+- **Components**:
+    - **Side-by-Side View**: Compares the original search word with the selected node.
+    - **Details Card**: Shows definition, part of speech, pronunciation, and a primary example sentence.
+    - **Usage Comparison**: A generated text summary explaining the contextual difference (e.g., "formal vs. casual").
+    - **Comparison Table**: Visualizes attributes like **Intensity**, **Formality**, and **Context** using progress bars and badges.
+
+## 5. Design System
+
+### Color Palette (from `variables.css`)
+- **Primary**: Indigo/Blue (`#667eea`) - Used for primary actions and center elements.
+- **Secondary**: Pink (`#f687b3`) - Used for accents.
+- **Success**: Green (`#48bb78`) - Often associated with synonyms or positive validation.
+- **Danger**: Red (`#f56565`) - Often associated with antonyms or error states.
+- **Backgrounds**: Clean whites and soft grays (`#f7fafc`) to maintain a modern, airy feel.
+
+### Typography
+- The app uses system fonts prioritized for legibility, with a focus on clean hierarchy (H1 for logos, H2 for word titles, etc.).
+
+## 6. Usage Guide
+
+### prerequisites
+- Node.js (Latest LTS recommended)
+- npm
+
+### Installation
+```bash
+npm install
 ```
+
+### Development
+To start the local development server:
+```bash
+npm run dev
+```
+The app will typically run at `http://localhost:5173`.
+
+### Building for Production
+To create a production-ready build:
+```bash
+npm run build
+```
+The artifacts will be generated in the `dist/` folder.
+
+### Preview Production Build
+```bash
+npm run preview
+```
+
+## 7. Future Roadmap (Suggestions)
+- **Backend Integration**: Currently mocks or uses a simple service. Future versions could integrate with a real Thesaurus API.
+- **User Accounts**: Save favorite words or history.
+- **Gamification**: "Word Chain" challenges connecting distant words.
