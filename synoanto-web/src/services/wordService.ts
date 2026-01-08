@@ -1,10 +1,10 @@
 import type { WordData, GalaxyWord, Synonym, Antonym, NuanceExample } from '@/types';
 
-const COLLEGIATE_KEY = '0be4cedf-7b9b-4309-b986-a9c41fefa130';
-const THESAURUS_KEY = 'aeae1af3-c3dd-4dfd-a927-06855ca8576b';
-
-const COLLEGIATE_API_BASE = 'https://www.dictionaryapi.com/api/v3/references/collegiate/json';
-const THESAURUS_API_BASE = 'https://www.dictionaryapi.com/api/v3/references/thesaurus/json';
+// Keys and APIs moved to backend
+// const COLLEGIATE_KEY = '...';
+// const THESAURUS_KEY = '...';
+// const COLLEGIATE_API_BASE = '...';
+// const THESAURUS_API_BASE = '...';
 
 
 
@@ -55,19 +55,21 @@ const getExampleSentence = (entry: any): string => {
 
 export const fetchWordDefinition = async (term: string): Promise<WordData | null> => {
     try {
-        const res = await fetch(`${COLLEGIATE_API_BASE}/${term}?key=${COLLEGIATE_KEY}`);
+        // Change: Call local backend instead of external APIs
+        const res = await fetch(`/api/word/${term}`);
         if (!res.ok) return null;
 
         const data = await res.json();
+        const collegiateData = data.collegiate;
 
-        console.log("=== Word Definition Fetch ===");
+        console.log("=== Word Definition Fetch (via Backend) ===");
         console.log(`Term: ${term}`);
-        console.log("Definition Data:", data);
-        console.log("=============================");
+        console.log("Definition Data:", collegiateData);
+        console.log("===========================================");
 
-        if (!data.length || typeof data[0] === 'string') return null;
+        if (!collegiateData.length || typeof collegiateData[0] === 'string') return null;
 
-        const validEntry = data.find((entry: any) => typeof entry === 'object' && entry.shortdef) || data[0];
+        const validEntry = collegiateData.find((entry: any) => typeof entry === 'object' && entry.shortdef) || collegiateData[0];
         if (!validEntry) return null;
 
         const definitions = validEntry.shortdef || [];
@@ -116,24 +118,22 @@ export const fetchWordData = async (
     } = config;
 
     try {
-        // 1. Parallel Fetch: Collegiate (Def, Pronunciation) & Thesaurus (Syn, Ant)
-        const [collegiateRes, thesaurusRes] = await Promise.all([
-            fetch(`${COLLEGIATE_API_BASE}/${term}?key=${COLLEGIATE_KEY}`),
-            fetch(`${THESAURUS_API_BASE}/${term}?key=${THESAURUS_KEY}`)
-        ]);
+        // Change: Call local backend instead of external APIs
+        const res = await fetch(`/api/word/${term}`);
 
-        if (!collegiateRes.ok || !thesaurusRes.ok) {
-            throw new Error('Failed to fetch data from dictionary services');
+        if (!res.ok) {
+            throw new Error('Failed to fetch data from backend service');
         }
 
-        const collegiateData = await collegiateRes.json();
-        const thesaurusData = await thesaurusRes.json();
+        const data = await res.json();
+        const collegiateData = data.collegiate;
+        const thesaurusData = data.thesaurus;
 
-        console.log("=== Dictionary Data Fetch ===");
+        console.log("=== Dictionary Data Fetch (via Backend) ===");
         console.log(`Term: ${term}`);
         console.log("Collegiate Data:", collegiateData);
         console.log("Thesaurus Data:", thesaurusData);
-        console.log("=============================");
+        console.log("===========================================");
 
         // Check if word exists (M-W returns empty array or array of suggestions (strings) if not found)
         if (!collegiateData.length || typeof collegiateData[0] === 'string') {
