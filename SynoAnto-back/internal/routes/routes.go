@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"synoanto-back/internal/models"
+	"synoanto-back/internal/utils"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -56,7 +57,7 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB) {
 			go db.Create(&models.SearchLog{
 				Word:       wordStr,
 				UserID:     0,
-				SearchTime: time.Now(),
+				SearchTime: utils.Now(),
 			})
 
 			var entry models.DictionaryEntry
