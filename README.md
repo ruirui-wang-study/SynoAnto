@@ -1,6 +1,17 @@
-# SynoAnto
-一个专注于近/反义词的英语学习app
+<div align="center">
+  <h1>SynoAnto</h1>
+  <img src="synoanto-web/public/logo.svg" alt="logo" width="150" />
+  <p>SynoAnto</p>
+</div>
 
+---
+
+<div align="center">
+一个专注于近/反义词的英语学习app
+</div>
+<img src="synoanto-web/public/index.png" alt="index" width="150" />
+
+## 设计方案
 产品亮点：目前大模型软件已经可以支持很多英语学习的功能，但是它接受的信息很杂，没有针对性的学习记忆功能，所以可以借助大模型能力，打造一款专注于近义词/反义词的英语学习app，列出近义词/反义词的词义，词源，词用，词例，词义对比，词源脉络等信息，帮助用户更好地学习英语。另外，根据用户的学习习惯，总结使用场景，推荐可能用到的其他单词。
 
 ![功能架构图](<synoanto-web/src/assets/function diagram.svg>)
